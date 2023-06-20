@@ -7,7 +7,7 @@ println("Good morning :)")
 #endif
 ```
 
-It's designed to learn it in a single glance.
+It's designed to be learned at a single glance. Use:
 - **{{variableName}}** to create a variable for your template.
 - **#if {{booleanName}} #then** for parts in the template which will appear only if `boolName` is true.
 
