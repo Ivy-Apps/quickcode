@@ -25,7 +25,37 @@ you to provide values for the defined variables.
 - `#elseif`: used to create else-if statements. Its condition must end with `#then` just like for `#if`.
 
 **If-condition operators:**
-- `AND`: logical AND like `&&` in many languages
-- `OR`: logical OR like `||` in many languages
-- `NOT`: logical NOT like `!`
-- `()`: brackets used for operations priority
+- `AND`: logical AND like `&&` in many languages.
+- `OR`: logical OR like `||` in many languages.
+- `NOT`: logical NOT like `!`.
+- `()`: brackets used for operations priority.
+
+That's it! Now you're ready to create your own code templates.
+
+> Your only limitation is your imagination!
+
+## Demo
+
+_TBD:_ I'm not that creative so feel free to submit me some PRs with ideas!
+
+```
+fun main(#if {{args}} #then args: Array<String> #endif) {
+#if {logging}} AND NOT {{prod}} #then
+  println("program started.")
+#endif
+
+  println("Hello, {{firstName}} {{lastName}}!")
+
+#if {{likeDogs}} #then
+  println("Here's a dog.")
+#elseif {{likeCats}} #then
+  println("Here's a cat.")
+#else
+  println("No animals for you, sir.")
+#endif
+
+#if ({logging}} AND NOT {{prod}}) OR {{forcedDebug}} #then
+  println("program finished.")
+#endif
+}
+```
