@@ -36,8 +36,6 @@ That's it! Now you're ready to create your own code templates.
 
 ## Demo
 
-_TBD:_ I'm not that creative so feel free to submit me some PRs with ideas!
-
 **For example:**
 
 ```
@@ -72,6 +70,8 @@ fun main(#if {{args}} #then args: Array<String>#endif) {
    "likeDogs":true
 }
 ```
+
+> Missing variables are interpreted as **false** or **"" (empty string)** by default.
 
 **Will produce:**
 
