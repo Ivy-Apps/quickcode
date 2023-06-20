@@ -38,14 +38,15 @@ That's it! Now you're ready to create your own code templates.
 
 _TBD:_ I'm not that creative so feel free to submit me some PRs with ideas!
 
+**For example:**
+
 ```
-fun main(#if {{args}} #then args: Array<String> #endif) {
-#if {logging}} AND NOT {{prod}} #then
+fun main(#if {{args}} #then args: Array<String>#endif) {
+#if {{logging}} AND NOT {{prod}} #then
   println("program started.")
 #endif
 
   println("Hello, {{firstName}} {{lastName}}!")
-
 #if {{likeDogs}} #then
   println("Here's a dog.")
 #elseif {{likeCats}} #then
@@ -54,8 +55,33 @@ fun main(#if {{args}} #then args: Array<String> #endif) {
   println("No animals for you, sir.")
 #endif
 
-#if ({logging}} AND NOT {{prod}}) OR {{forcedDebug}} #then
+#if ({{logging}} AND NOT {{prod}}) OR {{forcedDebug}} #then
   println("program finished.")
 #endif
+}
+```
+
+**When executed with:**
+
+```json
+{
+   "firstName":"John",
+   "lastName":"Wick",
+   "args":true,
+   "logging":true,
+   "likeDogs":true
+}
+```
+
+**Will produce:**
+
+```kotlin
+fun main(args: Array<String>) {
+  println("program started.")
+
+  println("Hello, John Wick!")
+  println("Here's a dog.")
+
+  println("program finished.")
 }
 ```
