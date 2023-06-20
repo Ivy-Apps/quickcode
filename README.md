@@ -1,5 +1,5 @@
 # QuickCode
-A simple and elegant language for generating dynamic code patterns using **{{variables}}** and **{{bools}}**.
+A simple and elegant language for generating dynamic code templates using **{{variables}}** and **#if**s.
 ```
 println("Hello, {{name}}!")
 #if {{morning}} #then
