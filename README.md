@@ -34,6 +34,9 @@ That's it! Now you're ready to create your own code templates.
 
 > Your only limitation is your imagination!
 
+> Note: If there is a variable name conflict (a String and Boolean variable with the same name),
+> Boolean takes precedence and the variable will be considered to be a boolean (true/false).
+
 ## Demo
 
 **For example:**
