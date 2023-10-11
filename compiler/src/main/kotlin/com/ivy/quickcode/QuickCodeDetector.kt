@@ -5,5 +5,4 @@ class QuickCodeDetector {
         val specialSyntaxPattern = """\{\{.+?}}|#if \{\{.+?}}""".toRegex()
         return specialSyntaxPattern.containsMatchIn(template)
     }
-
 }
