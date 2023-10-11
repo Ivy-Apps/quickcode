@@ -2,95 +2,27 @@ package com.ivy.quickcode.lexer
 
 class QuickCodeLexer {
     fun tokenize(text: String): List<Token> {
-        val scope = LexerState(
+        val state = LexerState(
             text = text,
             isInsideIfCondition = false,
             position = 0,
             prevPosition = 0,
             tokens = mutableListOf(),
         )
-        val rules = scope.parserRules()
-        while (scope.position < scope.text.length) {
-            scope.parse(rules)
+        val rules = state.parserRules()
+        // parse until the end of the text is reached
+        while (state.position < state.text.length) {
+            state.parseStep(rules)
         }
-        return scope.tokens.filter {
-            // filter empty RawText tokens
-            it !is Token.RawText || it.text.isNotEmpty()
-        }.concatRawTexts()
+        return state.tokens
+            .filterEmptyRawTexts()
+            .concatConsecutiveRawTexts()
             .beautifyRawTexts()
     }
 
-    private fun List<Token>.concatRawTexts(): List<Token> {
-        val original = this
-        val res = mutableListOf<Token>()
-        var i = 0
-        while (i < original.size) {
-            val current = original[i]
-            if (current is Token.RawText) {
-                val combinedRawText = buildString {
-                    append(current.text)
-                    var next: Token?
-                    do {
-                        next = original.getOrNull(i + 1)
-                        if (next is Token.RawText) {
-                            append(next.text)
-                            i++
-                        } else {
-                            break
-                        }
-                    } while (true)
-                }
-                res.add(Token.RawText(combinedRawText))
-            } else {
-                res.add(current)
-            }
-            i++
-        }
-
-        return res
-    }
-
-    private fun List<Token>.beautifyRawTexts(): List<Token> {
-        return mapIndexed { index, item ->
-            if (item is Token.RawText) {
-                // previous item
-                when (getOrNull(index - 1)) {
-                    in listOf(Token.Then, Token.Else) -> {
-                        item.copy(
-                            text = item.text.dropUnnecessaryWhiteSpace()
-                        )
-                    }
-
-                    Token.EndIf -> {
-                        item.copy(
-                            text = item.text.dropUnnecessaryWhiteSpace()
-                        )
-                    }
-
-                    else -> item
-                }
-            } else item
-        }
-    }
-
-    private fun String.dropUnnecessaryWhiteSpace(): String {
-        var spacesToDrop = 0
-        for (i in indices) {
-            if (get(i) == ' ') {
-                spacesToDrop++
-            } else {
-                break
-            }
-        }
-        val cleared = this.drop(spacesToDrop)
-        return when {
-            cleared.startsWith("\n") -> cleared.drop(1)
-            else -> cleared
-        }
-    }
-
-
     private fun LexerState.parserRules(): List<() -> Boolean> {
+        // Note: rules must be sorted by priority
+        // the ones at top have precedence
         return listOf(
             { variable() },
             { ifCond() },
@@ -107,18 +39,22 @@ class QuickCodeLexer {
         )
     }
 
-    private fun LexerState.parse(
+    private fun LexerState.parseStep(
         rules: List<() -> Boolean>
     ) {
+        // Try all rules, if none succeed assume it's raw test
         for (rule in rules) {
-            if (rule()) {
-                // parsed something special
+            val succeed = rule.invoke()
+            if (succeed) {
+                // parsed special syntax
+                // finish the parse step
                 return
             }
         }
 
         // default case: raw text
-        val nextSpecialChar = listOf(
+        // no rules have succeed
+        val nextSpecialCharIndex = listOf(
             Token.Variable.syntax,
             Token.If.syntax,
             Token.IfExpression.OpenBracket.syntax,
@@ -133,11 +69,12 @@ class QuickCodeLexer {
         ).mapNotNull { syntax ->
             text.indexOfOrNull(syntax.tag, position)
         }.minOrNull() ?: text.length
+
         if (!isInsideIfCondition) {
-            tokens.add(Token.RawText(text.substring(position, nextSpecialChar)))
+            tokens.add(Token.RawText(text.substring(position, nextSpecialCharIndex)))
         }
         prevPosition = position
-        position = nextSpecialChar
+        position = nextSpecialCharIndex
         if (position == prevPosition) {
             /*
             Special case wasn't parsed successfully (probably not satisfied condition).
@@ -278,6 +215,12 @@ class QuickCodeLexer {
     private fun String.indexOfOrNull(string: String, startIndex: Int): Int? =
         indexOf(string, startIndex).takeIf { it != -1 }
 
+    /**
+     * Represents the current state of the Lexer.
+     * @param text an immutable representation of the text being parsed
+     * @param isInsideIfCondition mutable flag indicating whether we're
+     * inside #if {{condition}} #then condition
+     */
     private data class LexerState(
         val text: String,
         var isInsideIfCondition: Boolean,
@@ -285,4 +228,80 @@ class QuickCodeLexer {
         var position: Int,
         val tokens: MutableList<Token>
     )
+
+    private fun List<Token>.filterEmptyRawTexts(): List<Token> {
+        return this.filter {
+            // filter empty RawText tokens
+            it !is Token.RawText || it.text.isNotEmpty()
+        }
+    }
+
+    private fun List<Token>.concatConsecutiveRawTexts(): List<Token> {
+        val original = this
+        val res = mutableListOf<Token>()
+        var i = 0
+        while (i < original.size) {
+            val current = original[i]
+            if (current is Token.RawText) {
+                val combinedRawText = buildString {
+                    append(current.text)
+                    var next: Token?
+                    do {
+                        next = original.getOrNull(i + 1)
+                        if (next is Token.RawText) {
+                            append(next.text)
+                            i++
+                        } else {
+                            break
+                        }
+                    } while (true)
+                }
+                res.add(Token.RawText(combinedRawText))
+            } else {
+                res.add(current)
+            }
+            i++
+        }
+
+        return res
+    }
+
+    private fun List<Token>.beautifyRawTexts(): List<Token> {
+        return mapIndexed { index, item ->
+            if (item is Token.RawText) {
+                // previous item
+                when (getOrNull(index - 1)) {
+                    in listOf(Token.Then, Token.Else) -> {
+                        item.copy(
+                            text = item.text.dropUnnecessaryWhiteSpace()
+                        )
+                    }
+
+                    Token.EndIf -> {
+                        item.copy(
+                            text = item.text.dropUnnecessaryWhiteSpace()
+                        )
+                    }
+
+                    else -> item
+                }
+            } else item
+        }
+    }
+
+    private fun String.dropUnnecessaryWhiteSpace(): String {
+        var spacesToDrop = 0
+        for (i in indices) {
+            if (get(i) == ' ') {
+                spacesToDrop++
+            } else {
+                break
+            }
+        }
+        val cleared = this.drop(spacesToDrop)
+        return when {
+            cleared.startsWith("\n") -> cleared.drop(1)
+            else -> cleared
+        }
+    }
 }
