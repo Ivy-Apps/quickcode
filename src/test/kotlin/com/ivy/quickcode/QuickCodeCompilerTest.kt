@@ -31,13 +31,24 @@ class QuickCodeCompilerTest : FreeSpec({
         compiler = QuickCodeCompiler()
     }
 
-    "example 1" {
+    "sample 1" {
         fileTestCase(
             folder = "sample",
             case = "1",
             vars = mapOf(
                 "isViewModel" to QCVariableValue.Bool(true),
                 "className" to QCVariableValue.Str("MyClass")
+            )
+        )
+    }
+
+    "sample 2" {
+        fileTestCase(
+            folder = "sample",
+            case = "2",
+            vars = mapOf(
+                "name" to QCVariableValue.Str("QuickCode"),
+                "morning" to QCVariableValue.Bool(true),
             )
         )
     }

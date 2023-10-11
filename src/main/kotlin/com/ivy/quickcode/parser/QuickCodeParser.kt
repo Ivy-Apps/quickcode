@@ -15,26 +15,21 @@ class QuickCodeParser {
     fun parse(
         tokens: List<QuickCodeToken>
     ): Either<String, QuickCodeAst> = either {
-        parseInternal(tokens)
+        val scope = QCParserScope<QuickCodeAst>(tokens, initialPosition = 0)
+        with(scope) { parseInternal() }
     }
 
-    context(Raise<String>)
-    private fun parseInternal(
-        tokens: List<QuickCodeToken>,
-    ): QuickCodeAst.Begin {
-        val astBuilder = AstBuilder()
-        val parserScope = QCParserScope<QuickCodeAst>(tokens, initialPosition = 0)
-
-        with(parserScope) {
+    context(Raise<String>, QCParserScope<QuickCodeAst>)
+    private fun parseInternal(): QuickCodeAst.Begin {
+        val ast = AstBuilder().apply {
             var currentToken = consumeToken()
             while (currentToken != null) {
-                parseToken(astBuilder, currentToken)
+                parseToken(this, currentToken)
                 currentToken = consumeToken()
             }
         }
-        return astBuilder.begin
+        return ast.begin
     }
-
 
     context(Raise<String>)
     private fun QCParserScope<QuickCodeAst>.parseToken(
@@ -136,4 +131,3 @@ class QuickCodeParser {
         }
     }
 }
-
