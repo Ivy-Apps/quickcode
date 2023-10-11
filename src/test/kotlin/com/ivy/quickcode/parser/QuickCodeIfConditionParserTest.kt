@@ -1,14 +1,14 @@
 package com.ivy.quickcode.parser
 
 import com.ivy.quickcode.data.IfStatement.Condition
-import com.ivy.quickcode.data.QuickCodeToken
-import com.ivy.quickcode.data.QuickCodeToken.IfExpression
+import com.ivy.quickcode.lexer.Token
+import com.ivy.quickcode.lexer.Token.IfExpression
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class QuickCodeIfConditionParserTest : FreeSpec({
     fun parser(
-        vararg tokens: QuickCodeToken
+        vararg tokens: Token
     ): QuickCodeIfConditionParser {
         return QuickCodeIfConditionParser(tokens.toList())
     }
@@ -30,11 +30,11 @@ class QuickCodeIfConditionParserTest : FreeSpec({
     "bool var" {
         // given
         val parser = parser(
-            QuickCodeToken.RawText("something"),
-            QuickCodeToken.If,
+            Token.RawText("something"),
+            Token.If,
             IfExpression.BoolVariable("a"),
-            QuickCodeToken.Then,
-            QuickCodeToken.RawText("Okay")
+            Token.Then,
+            Token.RawText("Okay")
         )
 
         // when
@@ -48,13 +48,13 @@ class QuickCodeIfConditionParserTest : FreeSpec({
     "simple expression" {
         // given
         val parser = parser(
-            QuickCodeToken.If,
+            Token.If,
             IfExpression.BoolVariable("cond1"),
             IfExpression.And,
             IfExpression.Not,
             IfExpression.BoolVariable("cond2"),
-            QuickCodeToken.Then,
-            QuickCodeToken.RawText("Okay")
+            Token.Then,
+            Token.RawText("Okay")
         )
 
         // when
@@ -71,14 +71,14 @@ class QuickCodeIfConditionParserTest : FreeSpec({
     "double And" {
         // given
         val parser = parser(
-            QuickCodeToken.If,
+            Token.If,
             IfExpression.BoolVariable("a"),
             IfExpression.And,
             IfExpression.BoolVariable("b"),
             IfExpression.And,
             IfExpression.BoolVariable("c"),
-            QuickCodeToken.Then,
-            QuickCodeToken.RawText("Okay")
+            Token.Then,
+            Token.RawText("Okay")
         )
 
         // when
@@ -98,7 +98,7 @@ class QuickCodeIfConditionParserTest : FreeSpec({
     fun testTripleOr() {
         // given
         val parser = parser(
-            QuickCodeToken.If,
+            Token.If,
             IfExpression.BoolVariable("a"),
             IfExpression.Or,
             IfExpression.BoolVariable("b"),
@@ -106,9 +106,9 @@ class QuickCodeIfConditionParserTest : FreeSpec({
             IfExpression.BoolVariable("c"),
             IfExpression.Or,
             IfExpression.BoolVariable("d"),
-            QuickCodeToken.Then,
-            QuickCodeToken.RawText("Okay"),
-            QuickCodeToken.Variable("name"),
+            Token.Then,
+            Token.RawText("Okay"),
+            Token.Variable("name"),
         )
 
         // when

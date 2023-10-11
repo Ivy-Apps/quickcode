@@ -1,6 +1,10 @@
 package com.ivy.quickcode.parser
 
-import com.ivy.quickcode.data.*
+import com.ivy.quickcode.data.IfStatement
+import com.ivy.quickcode.data.QuickCodeAst
+import com.ivy.quickcode.data.RawText
+import com.ivy.quickcode.data.Variable
+import com.ivy.quickcode.lexer.Token
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
@@ -65,17 +69,17 @@ class QuickCodeParserTest : FreeSpec({
     "simple if" {
         // given
         val tokens = listOf(
-            QuickCodeToken.RawText("println(\"Hello, "),
-            QuickCodeToken.Variable("name"),
-            QuickCodeToken.RawText("!\""),
-            QuickCodeToken.If,
-            QuickCodeToken.IfExpression.BoolVariable("a"),
-            QuickCodeToken.IfExpression.And,
-            QuickCodeToken.IfExpression.Not,
-            QuickCodeToken.IfExpression.BoolVariable("b"),
-            QuickCodeToken.Then,
-            QuickCodeToken.RawText("test"),
-            QuickCodeToken.EndIf,
+            Token.RawText("println(\"Hello, "),
+            Token.Variable("name"),
+            Token.RawText("!\""),
+            Token.If,
+            Token.IfExpression.BoolVariable("a"),
+            Token.IfExpression.And,
+            Token.IfExpression.Not,
+            Token.IfExpression.BoolVariable("b"),
+            Token.Then,
+            Token.RawText("test"),
+            Token.EndIf,
         )
 
         // when
@@ -101,15 +105,15 @@ class QuickCodeParserTest : FreeSpec({
     "if else" {
         // given
         val tokens = listOf(
-            QuickCodeToken.If,
-            QuickCodeToken.IfExpression.BoolVariable("day"),
-            QuickCodeToken.Then,
-            QuickCodeToken.RawText("Good day, "),
-            QuickCodeToken.Variable("name"),
-            QuickCodeToken.RawText("!"),
-            QuickCodeToken.Else,
-            QuickCodeToken.RawText("Good night!"),
-            QuickCodeToken.EndIf,
+            Token.If,
+            Token.IfExpression.BoolVariable("day"),
+            Token.Then,
+            Token.RawText("Good day, "),
+            Token.Variable("name"),
+            Token.RawText("!"),
+            Token.Else,
+            Token.RawText("Good night!"),
+            Token.EndIf,
         )
 
         // when

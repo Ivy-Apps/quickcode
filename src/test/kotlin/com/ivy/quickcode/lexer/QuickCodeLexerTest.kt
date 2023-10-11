@@ -1,11 +1,10 @@
-package com.ivy.quickcode
+package com.ivy.quickcode.lexer
 
-import com.ivy.quickcode.data.QuickCodeToken
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class QuickCodeLexerTest : FreeSpec({
-    fun List<QuickCodeToken>.printActual() {
+    fun List<Token>.printActual() {
         println("Actual result:")
         for ((index, token) in this.withIndex()) {
             println("#$index: $token")
@@ -13,7 +12,7 @@ class QuickCodeLexerTest : FreeSpec({
         println("------")
     }
 
-    infix fun List<QuickCodeToken>.shouldBe(expectedTokens: List<QuickCodeToken>) {
+    infix fun List<Token>.shouldBe(expectedTokens: List<Token>) {
         printActual()
 
         for (index in this.indices) {
@@ -50,7 +49,7 @@ class QuickCodeLexerTest : FreeSpec({
 
         // then
         tokens shouldBe listOf(
-            QuickCodeToken.RawText("Hello, World!")
+            Token.RawText("Hello, World!")
         )
     }
 
@@ -63,7 +62,7 @@ class QuickCodeLexerTest : FreeSpec({
 
         // then
         tokens shouldBe listOf(
-            QuickCodeToken.Variable("variable")
+            Token.Variable("variable")
         )
     }
 
@@ -76,15 +75,15 @@ class QuickCodeLexerTest : FreeSpec({
 
         // then
         tokens shouldBe listOf(
-            QuickCodeToken.If,
-            QuickCodeToken.IfExpression.OpenBracket,
-            QuickCodeToken.IfExpression.BoolVariable("var1"),
-            QuickCodeToken.IfExpression.And,
-            QuickCodeToken.IfExpression.BoolVariable("var2"),
-            QuickCodeToken.IfExpression.CloseBracket,
-            QuickCodeToken.IfExpression.Or,
-            QuickCodeToken.IfExpression.Not,
-            QuickCodeToken.IfExpression.BoolVariable("var3"),
+            Token.If,
+            Token.IfExpression.OpenBracket,
+            Token.IfExpression.BoolVariable("var1"),
+            Token.IfExpression.And,
+            Token.IfExpression.BoolVariable("var2"),
+            Token.IfExpression.CloseBracket,
+            Token.IfExpression.Or,
+            Token.IfExpression.Not,
+            Token.IfExpression.BoolVariable("var3"),
         )
     }
 

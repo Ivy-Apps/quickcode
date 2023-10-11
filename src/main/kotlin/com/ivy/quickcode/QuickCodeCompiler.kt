@@ -1,6 +1,7 @@
 package com.ivy.quickcode
 
 import com.ivy.quickcode.data.*
+import com.ivy.quickcode.lexer.QuickCodeLexer
 import com.ivy.quickcode.parser.ParseResult
 import com.ivy.quickcode.parser.QuickCodeParser
 

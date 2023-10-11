@@ -1,9 +1,9 @@
 package com.ivy.quickcode.parser
 
-import com.ivy.quickcode.data.QuickCodeToken
+import com.ivy.quickcode.lexer.Token
 
 class QCParserScope<T>(
-    val tokens: List<QuickCodeToken>,
+    val tokens: List<Token>,
     initialPosition: Int,
 ) {
     var position = initialPosition
@@ -30,9 +30,9 @@ class QCParserScope<T>(
         return null
     }
 
-    fun consumeToken(): QuickCodeToken? {
+    fun consumeToken(): Token? {
         return tokens.getOrNull(position++).run {
-            if (this is QuickCodeToken.Then) null else this
+            if (this is Token.Then) null else this
         }
     }
 
@@ -53,15 +53,15 @@ class QCParserScope<T>(
         }
     }
 
-    fun prevToken(): QuickCodeToken? {
+    fun prevToken(): Token? {
         return tokens.getOrNull(position - 1)
     }
 
-    fun currentToken(): QuickCodeToken? {
+    fun currentToken(): Token? {
         return tokens.getOrNull(position)
     }
 
-    fun nextToken(): QuickCodeToken? {
+    fun nextToken(): Token? {
         return tokens.getOrNull(position + 1)
     }
 
