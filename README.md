@@ -14,6 +14,12 @@ It's designed to be learned at a single glance. Use:
 When you evaluate/execute your template [Compose Hammer](https://plugins.jetbrains.com/plugin/21912-compose-hammer) will ask
 you to provide values for the defined variables.
 
+### Usage
+
+```
+./gradlew run --args="samples/hello.kt.qc samples/hello_input.json"
+```
+
 ## Syntax
 
 **Keywords:**

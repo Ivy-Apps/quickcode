@@ -7,13 +7,14 @@ import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.booleanOrNull
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.io.path.name
 
 fun main(args: Array<String>) {
+    // TODO: Extract this as a class, handle errors cases and test it
     if (args.size != 2) {
         println("Invalid arguments!")
         return
     }
-
     val template = readFileContent(args[0])
     val inputJson = readFileContent(args[1])
     val rawInput: Map<String, JsonPrimitive> = Json.decodeFromString(inputJson)
@@ -31,6 +32,10 @@ fun main(args: Array<String>) {
     val compiler = QuickCodeCompiler()
     val result = compiler.execute(template, input)
     println("----------------")
+    produceOutputFile(
+        templatePath = args[0],
+        result = result,
+    )
     println("----------------")
     println(result)
 }
@@ -38,4 +43,15 @@ fun main(args: Array<String>) {
 fun readFileContent(relativePath: String): String {
     val path = Paths.get(relativePath)
     return Files.readString(path)
+}
+
+fun produceOutputFile(templatePath: String, result: String) {
+    val path = Paths.get(templatePath)
+    val fileName = path.fileName.name
+    val outputFilename = fileName.dropLast(3)
+    Files.writeString(
+        Paths.get(outputFilename),
+        result
+    )
+    println("'$outputFilename' created.")
 }
