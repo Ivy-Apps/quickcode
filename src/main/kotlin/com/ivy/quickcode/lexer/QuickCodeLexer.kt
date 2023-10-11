@@ -1,6 +1,15 @@
 package com.ivy.quickcode.lexer
 
+/**
+ * Transforms a text ([String]) into a list of [Token]
+ * that can be processed by the parser.
+ */
 class QuickCodeLexer {
+    /**
+     * Transforms a [text] ([String]) into a list of [Token]
+     * that can be processed by the parser.
+     * @param text the QuickCode template being parsed
+     */
     fun tokenize(text: String): List<Token> {
         val state = LexerState(
             text = text,
@@ -9,18 +18,18 @@ class QuickCodeLexer {
             prevPosition = 0,
             tokens = mutableListOf(),
         )
-        val rules = state.parserRules()
+        val syntaxRules = state.syntaxRules()
         // parse until the end of the text is reached
         while (state.position < state.text.length) {
-            state.parseStep(rules)
+            state.parseStep(syntaxRules)
         }
         return state.tokens
             .filterEmptyRawTexts()
-            .concatConsecutiveRawTexts()
+            .mergeConsecutiveRawTexts()
             .beautifyRawTexts()
     }
 
-    private fun LexerState.parserRules(): List<() -> Boolean> {
+    private fun LexerState.syntaxRules(): List<() -> Boolean> {
         // Note: rules must be sorted by priority
         // the ones at top have precedence
         return listOf(
@@ -40,10 +49,10 @@ class QuickCodeLexer {
     }
 
     private fun LexerState.parseStep(
-        rules: List<() -> Boolean>
+        syntaxRules: List<() -> Boolean>
     ) {
         // Try all rules, if none succeeds assume then it's default
-        for (rule in rules) {
+        for (rule in syntaxRules) {
             val succeed = rule.invoke()
             if (succeed) {
                 // parsed special syntax
@@ -53,7 +62,7 @@ class QuickCodeLexer {
         }
 
         // default case: raw text
-        // no rules have succeeded
+        // no special syntax detected
         val nextSpecialCharIndex = listOf(
             Token.Variable.syntax,
             Token.If.syntax,
@@ -71,13 +80,15 @@ class QuickCodeLexer {
         }.minOrNull() ?: text.length
 
         if (!isInsideIfCondition) {
+            // Raw text inside #if {{condition}} #then must be ignored
             tokens.add(Token.RawText(text.substring(position, nextSpecialCharIndex)))
         }
-        prevPosition = position
+
+        prevPosition = position // used to prevent cycles
         position = nextSpecialCharIndex
 
         if (position == prevPosition) {
-            // Cycle!!
+            // Cycle detected! Consume one char to break it.
             tokens.add(Token.RawText("${text[position]}"))
             position++
         }
@@ -86,8 +97,8 @@ class QuickCodeLexer {
     private fun LexerState.variable(): Boolean = parseToken(
         condition = !isInsideIfCondition,
         syntax = Token.Variable.syntax,
-    ) {
-        Token.Variable(name = it.trim())
+    ) { content ->
+        Token.Variable(name = content.trim())
     }
 
     private fun LexerState.ifCond() = parseToken(
@@ -136,8 +147,8 @@ class QuickCodeLexer {
     private fun LexerState.ifBoolVar() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.BoolVariable.syntax,
-    ) {
-        Token.IfExpression.BoolVariable(name = it.trim())
+    ) { content ->
+        Token.IfExpression.BoolVariable(name = content.trim())
     }
 
     private fun LexerState.thenCond() = parseToken(
@@ -237,7 +248,7 @@ class QuickCodeLexer {
         }
     }
 
-    private fun List<Token>.concatConsecutiveRawTexts(): List<Token> {
+    private fun List<Token>.mergeConsecutiveRawTexts(): List<Token> {
         val original = this
         val res = mutableListOf<Token>()
         var i = 0
