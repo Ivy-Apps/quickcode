@@ -1,5 +1,10 @@
 plugins {
+    application
     alias(libs.plugins.kotlin)
+}
+
+application {
+    mainClass = "com.ivy.quickcode.MainKt"
 }
 
 group = "com.ivy"
