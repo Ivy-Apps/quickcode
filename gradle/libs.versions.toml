@@ -1,0 +1,42 @@
+[versions]
+kotlin = "1.9.10"
+kotlin-coroutines = "1.7.3"
+arrow = "1.2.1"
+kotest = "5.7.2"
+
+[libraries]
+
+# Kotlin
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+
+# Arrow
+arrowkt-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+
+# Testing
+mockk = { module = "io.mockk:mockk", version = "1.13.8" }
+kotest-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+kotest-property-arrow = { module = "io.kotest.extensions:kotest-property-arrow", version.ref = "arrow" }
+kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "arrow" }
+kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
+
+[bundles]
+kotlin = [
+    "kotlin-stdlib",
+    "kotlin-coroutines-core"
+]
+testing = [
+    "mockk",
+    "kotest-junit5",
+    "kotest-assertions",
+    "kotest-property",
+    "kotest-property-arrow",
+    "kotest-datatest",
+    "kotlin-coroutines-test"
+]
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
