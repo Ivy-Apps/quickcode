@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.0"
+    alias(libs.plugins.kotlin)
 }
 
 group = "com.ivy"
@@ -19,4 +19,11 @@ tasks.test {
 
 kotlin {
     jvmToolchain(8)
+}
+
+dependencies {
+    implementation(libs.bundles.kotlin)
+    implementation(libs.arrowkt.core)
+
+    testImplementation(libs.bundles.testing)
 }
