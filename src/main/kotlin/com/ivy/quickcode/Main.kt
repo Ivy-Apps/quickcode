@@ -31,7 +31,6 @@ fun main(args: Array<String>) {
     println("Input:")
     println(input)
 
-
     val compiler = QuickCodeCompiler()
     val result = compiler.execute(template, input)
     println("----------------")
