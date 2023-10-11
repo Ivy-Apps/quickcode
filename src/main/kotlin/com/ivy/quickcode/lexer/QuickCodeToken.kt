@@ -1,9 +1,9 @@
 package com.ivy.quickcode.lexer
 
-sealed interface Token {
-    data class RawText(val text: String) : Token
+sealed interface QuickCodeToken {
+    data class RawText(val text: String) : QuickCodeToken
 
-    data class Variable(val name: String) : Token {
+    data class Variable(val name: String) : QuickCodeToken {
         companion object {
             val syntax = TokenSyntax(
                 tag = "{{",
@@ -12,7 +12,7 @@ sealed interface Token {
         }
     }
 
-    data object If : Token {
+    data object If : QuickCodeToken {
         val syntax = TokenSyntax(
             tag = "#if",
         )
@@ -20,7 +20,7 @@ sealed interface Token {
         override fun toString() = syntax.tag
     }
 
-    sealed interface IfExpression : Token {
+    sealed interface IfExpression : QuickCodeToken {
         data class BoolVariable(val name: String) : IfExpression {
             companion object {
                 val syntax = TokenSyntax(
@@ -71,7 +71,7 @@ sealed interface Token {
         }
     }
 
-    data object Then : Token {
+    data object Then : QuickCodeToken {
         val syntax = TokenSyntax(
             tag = "#then",
         )
@@ -79,7 +79,7 @@ sealed interface Token {
         override fun toString() = syntax.tag
     }
 
-    data object ElseIf : Token {
+    data object ElseIf : QuickCodeToken {
         val syntax = TokenSyntax(
             tag = "#elseif",
         )
@@ -87,7 +87,7 @@ sealed interface Token {
         override fun toString() = syntax.tag
     }
 
-    data object Else : Token {
+    data object Else : QuickCodeToken {
         val syntax = TokenSyntax(
             tag = "#else",
         )
@@ -95,7 +95,7 @@ sealed interface Token {
         override fun toString() = syntax.tag
     }
 
-    data object EndIf : Token {
+    data object EndIf : QuickCodeToken {
         val syntax = TokenSyntax(
             tag = "#endif",
         )

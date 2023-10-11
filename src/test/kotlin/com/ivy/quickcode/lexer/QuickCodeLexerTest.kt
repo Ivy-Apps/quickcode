@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class QuickCodeLexerTest : FreeSpec({
-    fun List<Token>.printActual() {
+    fun List<QuickCodeToken>.printActual() {
         println("Actual result:")
         for ((index, token) in this.withIndex()) {
             println("#$index: $token")
@@ -12,7 +12,7 @@ class QuickCodeLexerTest : FreeSpec({
         println("------")
     }
 
-    infix fun List<Token>.shouldBe(expectedTokens: List<Token>) {
+    infix fun List<QuickCodeToken>.shouldBe(expectedTokens: List<QuickCodeToken>) {
         printActual()
 
         for (index in this.indices) {
@@ -49,7 +49,7 @@ class QuickCodeLexerTest : FreeSpec({
 
         // then
         tokens shouldBe listOf(
-            Token.RawText("Hello, World!")
+            QuickCodeToken.RawText("Hello, World!")
         )
     }
 
@@ -62,7 +62,7 @@ class QuickCodeLexerTest : FreeSpec({
 
         // then
         tokens shouldBe listOf(
-            Token.Variable("variable")
+            QuickCodeToken.Variable("variable")
         )
     }
 
@@ -75,15 +75,15 @@ class QuickCodeLexerTest : FreeSpec({
 
         // then
         tokens shouldBe listOf(
-            Token.If,
-            Token.IfExpression.OpenBracket,
-            Token.IfExpression.BoolVariable("var1"),
-            Token.IfExpression.And,
-            Token.IfExpression.BoolVariable("var2"),
-            Token.IfExpression.CloseBracket,
-            Token.IfExpression.Or,
-            Token.IfExpression.Not,
-            Token.IfExpression.BoolVariable("var3"),
+            QuickCodeToken.If,
+            QuickCodeToken.IfExpression.OpenBracket,
+            QuickCodeToken.IfExpression.BoolVariable("var1"),
+            QuickCodeToken.IfExpression.And,
+            QuickCodeToken.IfExpression.BoolVariable("var2"),
+            QuickCodeToken.IfExpression.CloseBracket,
+            QuickCodeToken.IfExpression.Or,
+            QuickCodeToken.IfExpression.Not,
+            QuickCodeToken.IfExpression.BoolVariable("var3"),
         )
     }
 

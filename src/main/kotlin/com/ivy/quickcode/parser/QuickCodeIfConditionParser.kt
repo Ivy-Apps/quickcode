@@ -1,19 +1,19 @@
 package com.ivy.quickcode.parser
 
 import com.ivy.quickcode.data.IfStatement
-import com.ivy.quickcode.lexer.Token
+import com.ivy.quickcode.lexer.QuickCodeToken
 
 typealias IfCondParserScope = QCParserScope<IfStatement.Condition>
 
 class QuickCodeIfConditionParser(
-    private val tokens: List<Token>,
+    private val tokens: List<QuickCodeToken>,
 ) {
     fun parse(
         position: Int
     ): Pair<IfStatement.Condition, Int>? {
         val scope = IfCondParserScope(tokens, position)
         val condition = scope.condition() ?: return null
-        if (scope.currentToken() == Token.Then) {
+        if (scope.currentToken() == QuickCodeToken.Then) {
             scope.consumeToken()
         }
         return condition to scope.position
@@ -32,15 +32,15 @@ class QuickCodeIfConditionParser(
     }
 
     private fun IfCondParserScope.brackets(): IfStatement.Condition.Brackets? {
-        if (consumeToken() !is Token.IfExpression.OpenBracket) return null
+        if (consumeToken() !is QuickCodeToken.IfExpression.OpenBracket) return null
         val cond = condition() ?: return null
-        if (consumeToken() !is Token.IfExpression.CloseBracket) return null
+        if (consumeToken() !is QuickCodeToken.IfExpression.CloseBracket) return null
         return IfStatement.Condition.Brackets(cond)
     }
 
     private fun IfCondParserScope.andExpr(): IfStatement.Condition.And? {
         val cond1 = term() ?: return null
-        if (consumeToken() !is Token.IfExpression.And) return null
+        if (consumeToken() !is QuickCodeToken.IfExpression.And) return null
         val cond2 = condition() ?: return null
         return IfStatement.Condition.And(
             cond1 = cond1,
@@ -50,7 +50,7 @@ class QuickCodeIfConditionParser(
 
     private fun IfCondParserScope.orExpr(): IfStatement.Condition.Or? {
         val cond1 = term() ?: return null
-        if (consumeToken() !is Token.IfExpression.Or) return null
+        if (consumeToken() !is QuickCodeToken.IfExpression.Or) return null
         val cond2 = condition() ?: return null
         return IfStatement.Condition.Or(
             cond1 = cond1,
@@ -59,13 +59,13 @@ class QuickCodeIfConditionParser(
     }
 
     private fun IfCondParserScope.notExpr(): IfStatement.Condition.Not? {
-        if (consumeToken() !is Token.IfExpression.Not) return null
+        if (consumeToken() !is QuickCodeToken.IfExpression.Not) return null
         val cond = condition() ?: return null
         return IfStatement.Condition.Not(cond)
     }
 
     private fun IfCondParserScope.boolVar(): IfStatement.Condition.BoolVar? {
-        return (consumeToken() as? Token.IfExpression.BoolVariable)?.let {
+        return (consumeToken() as? QuickCodeToken.IfExpression.BoolVariable)?.let {
             IfStatement.Condition.BoolVar(it.name)
         }
     }

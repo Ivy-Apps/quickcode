@@ -1,16 +1,16 @@
 package com.ivy.quickcode.lexer
 
 /**
- * Transforms a text ([String]) into a list of [Token]
+ * Transforms a text ([String]) into a list of [QuickCodeToken]
  * that can be processed by the parser.
  */
 class QuickCodeLexer {
     /**
-     * Transforms a [text] ([String]) into a list of [Token]
+     * Transforms a [text] ([String]) into a list of [QuickCodeToken]
      * that can be processed by the parser.
      * @param text the QuickCode template being parsed
      */
-    fun tokenize(text: String): List<Token> {
+    fun tokenize(text: String): List<QuickCodeToken> {
         val state = LexerState(
             text = text,
             isInsideIfCondition = false,
@@ -64,24 +64,24 @@ class QuickCodeLexer {
         // default case: raw text
         // no special syntax detected
         val nextSpecialCharIndex = listOf(
-            Token.Variable.syntax,
-            Token.If.syntax,
-            Token.IfExpression.OpenBracket.syntax,
-            Token.IfExpression.CloseBracket.syntax,
-            Token.IfExpression.And.syntax,
-            Token.IfExpression.Or.syntax,
-            Token.IfExpression.Not.syntax,
-            Token.IfExpression.BoolVariable.syntax,
-            Token.Then.syntax,
-            Token.Else.syntax,
-            Token.EndIf.syntax,
+            QuickCodeToken.Variable.syntax,
+            QuickCodeToken.If.syntax,
+            QuickCodeToken.IfExpression.OpenBracket.syntax,
+            QuickCodeToken.IfExpression.CloseBracket.syntax,
+            QuickCodeToken.IfExpression.And.syntax,
+            QuickCodeToken.IfExpression.Or.syntax,
+            QuickCodeToken.IfExpression.Not.syntax,
+            QuickCodeToken.IfExpression.BoolVariable.syntax,
+            QuickCodeToken.Then.syntax,
+            QuickCodeToken.Else.syntax,
+            QuickCodeToken.EndIf.syntax,
         ).mapNotNull { syntax ->
             text.indexOfOrNull(syntax.tag, position)
         }.minOrNull() ?: text.length
 
         if (!isInsideIfCondition) {
             // Raw text inside #if {{condition}} #then must be ignored
-            tokens.add(Token.RawText(text.substring(position, nextSpecialCharIndex)))
+            tokens.add(QuickCodeToken.RawText(text.substring(position, nextSpecialCharIndex)))
         }
 
         prevPosition = position // used to prevent cycles
@@ -89,102 +89,102 @@ class QuickCodeLexer {
 
         if (position == prevPosition) {
             // Cycle detected! Consume one char to break it.
-            tokens.add(Token.RawText("${text[position]}"))
+            tokens.add(QuickCodeToken.RawText("${text[position]}"))
             position++
         }
     }
 
     private fun LexerState.variable(): Boolean = parseToken(
         condition = !isInsideIfCondition,
-        syntax = Token.Variable.syntax,
+        syntax = QuickCodeToken.Variable.syntax,
     ) { content ->
-        Token.Variable(name = content.trim())
+        QuickCodeToken.Variable(name = content.trim())
     }
 
     private fun LexerState.ifCond() = parseToken(
         condition = !isInsideIfCondition,
-        syntax = Token.If.syntax,
+        syntax = QuickCodeToken.If.syntax,
     ) {
         isInsideIfCondition = true
-        Token.If
+        QuickCodeToken.If
     }
 
     private fun LexerState.ifOpenBracket() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.IfExpression.OpenBracket.syntax,
+        syntax = QuickCodeToken.IfExpression.OpenBracket.syntax,
     ) {
-        Token.IfExpression.OpenBracket
+        QuickCodeToken.IfExpression.OpenBracket
     }
 
     private fun LexerState.ifCloseBracket() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.IfExpression.CloseBracket.syntax,
+        syntax = QuickCodeToken.IfExpression.CloseBracket.syntax,
     ) {
-        Token.IfExpression.CloseBracket
+        QuickCodeToken.IfExpression.CloseBracket
     }
 
     private fun LexerState.ifNot() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.IfExpression.Not.syntax,
+        syntax = QuickCodeToken.IfExpression.Not.syntax,
     ) {
-        Token.IfExpression.Not
+        QuickCodeToken.IfExpression.Not
     }
 
     private fun LexerState.ifAndCond() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.IfExpression.And.syntax,
+        syntax = QuickCodeToken.IfExpression.And.syntax,
     ) {
-        Token.IfExpression.And
+        QuickCodeToken.IfExpression.And
     }
 
     private fun LexerState.ifOrCond() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.IfExpression.Or.syntax,
+        syntax = QuickCodeToken.IfExpression.Or.syntax,
     ) {
-        Token.IfExpression.Or
+        QuickCodeToken.IfExpression.Or
     }
 
     private fun LexerState.ifBoolVar() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.IfExpression.BoolVariable.syntax,
+        syntax = QuickCodeToken.IfExpression.BoolVariable.syntax,
     ) { content ->
-        Token.IfExpression.BoolVariable(name = content.trim())
+        QuickCodeToken.IfExpression.BoolVariable(name = content.trim())
     }
 
     private fun LexerState.thenCond() = parseToken(
         condition = isInsideIfCondition,
-        syntax = Token.Then.syntax,
+        syntax = QuickCodeToken.Then.syntax,
     ) {
         isInsideIfCondition = false
-        Token.Then
+        QuickCodeToken.Then
     }
 
     private fun LexerState.elseIfCond() = parseToken(
         condition = !isInsideIfCondition,
-        syntax = Token.ElseIf.syntax
+        syntax = QuickCodeToken.ElseIf.syntax
     ) {
         isInsideIfCondition = true
-        Token.ElseIf
+        QuickCodeToken.ElseIf
     }
 
     private fun LexerState.elseCond() = parseToken(
         condition = !isInsideIfCondition,
-        syntax = Token.Else.syntax
+        syntax = QuickCodeToken.Else.syntax
     ) {
-        Token.Else
+        QuickCodeToken.Else
     }
 
     private fun LexerState.endIfCond() = parseToken(
         condition = !isInsideIfCondition,
-        syntax = Token.EndIf.syntax,
+        syntax = QuickCodeToken.EndIf.syntax,
     ) {
-        Token.EndIf
+        QuickCodeToken.EndIf
     }
 
     private fun LexerState.parseToken(
         condition: Boolean,
         syntax: TokenSyntax,
-        createToken: LexerState.(content: String) -> Token,
+        createToken: LexerState.(content: String) -> QuickCodeToken,
     ): Boolean {
         if (!condition) return false
         if (!text.startsWith(prefix = syntax.tag, startIndex = position)) {
@@ -238,29 +238,29 @@ class QuickCodeLexer {
         var isInsideIfCondition: Boolean,
         var position: Int,
         var prevPosition: Int,
-        val tokens: MutableList<Token>
+        val tokens: MutableList<QuickCodeToken>
     )
 
-    private fun List<Token>.filterEmptyRawTexts(): List<Token> {
+    private fun List<QuickCodeToken>.filterEmptyRawTexts(): List<QuickCodeToken> {
         return this.filter {
             // filter empty RawText tokens
-            it !is Token.RawText || it.text.isNotEmpty()
+            it !is QuickCodeToken.RawText || it.text.isNotEmpty()
         }
     }
 
-    private fun List<Token>.mergeConsecutiveRawTexts(): List<Token> {
+    private fun List<QuickCodeToken>.mergeConsecutiveRawTexts(): List<QuickCodeToken> {
         val original = this
-        val res = mutableListOf<Token>()
+        val res = mutableListOf<QuickCodeToken>()
         var i = 0
         while (i < original.size) {
             val current = original[i]
-            if (current is Token.RawText) {
+            if (current is QuickCodeToken.RawText) {
                 val combinedRawText = buildString {
                     append(current.text)
-                    var next: Token?
+                    var next: QuickCodeToken?
                     do {
                         next = original.getOrNull(i + 1)
-                        if (next is Token.RawText) {
+                        if (next is QuickCodeToken.RawText) {
                             append(next.text)
                             i++
                         } else {
@@ -268,7 +268,7 @@ class QuickCodeLexer {
                         }
                     } while (true)
                 }
-                res.add(Token.RawText(combinedRawText))
+                res.add(QuickCodeToken.RawText(combinedRawText))
             } else {
                 res.add(current)
             }
@@ -278,18 +278,18 @@ class QuickCodeLexer {
         return res
     }
 
-    private fun List<Token>.beautifyRawTexts(): List<Token> {
+    private fun List<QuickCodeToken>.beautifyRawTexts(): List<QuickCodeToken> {
         return mapIndexed { index, item ->
-            if (item is Token.RawText) {
+            if (item is QuickCodeToken.RawText) {
                 // previous item
                 when (getOrNull(index - 1)) {
-                    in listOf(Token.Then, Token.Else) -> {
+                    in listOf(QuickCodeToken.Then, QuickCodeToken.Else) -> {
                         item.copy(
                             text = item.text.dropUnnecessaryWhiteSpace()
                         )
                     }
 
-                    Token.EndIf -> {
+                    QuickCodeToken.EndIf -> {
                         item.copy(
                             text = item.text.dropUnnecessaryWhiteSpace()
                         )

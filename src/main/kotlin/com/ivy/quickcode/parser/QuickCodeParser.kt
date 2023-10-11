@@ -5,10 +5,10 @@ import com.ivy.quickcode.data.IfStatement.Condition
 import com.ivy.quickcode.data.QuickCodeAst
 import com.ivy.quickcode.data.RawText
 import com.ivy.quickcode.data.Variable
-import com.ivy.quickcode.lexer.Token
+import com.ivy.quickcode.lexer.QuickCodeToken
 
 class QuickCodeParser {
-    fun parse(tokens: List<Token>): ParseResult {
+    fun parse(tokens: List<QuickCodeToken>): ParseResult {
         return try {
             ParseResult.Success(parseInternal(tokens))
         } catch (e: Exception) {
@@ -17,7 +17,7 @@ class QuickCodeParser {
     }
 
     private fun parseInternal(
-        tokens: List<Token>,
+        tokens: List<QuickCodeToken>,
     ): QuickCodeAst.Begin {
         val astBuilder = AstBuilder()
         val parserScope = QCParserScope<QuickCodeAst>(tokens, initialPosition = 0)
@@ -35,18 +35,18 @@ class QuickCodeParser {
 
     private fun QCParserScope<QuickCodeAst>.parseToken(
         astBuilder: AstBuilder,
-        token: Token,
+        token: QuickCodeToken,
     ) {
         when (token) {
-            Token.If -> {
+            QuickCodeToken.If -> {
                 parseIfStatement(astBuilder)
             }
 
-            is Token.RawText -> {
+            is QuickCodeToken.RawText -> {
                 astBuilder.addNode(RawText(token.text))
             }
 
-            is Token.Variable -> {
+            is QuickCodeToken.Variable -> {
                 astBuilder.addNode(Variable(token.name))
             }
 
@@ -64,18 +64,18 @@ class QuickCodeParser {
         val thenAst = AstBuilder()
         val thenEnd = parseUntil(
             ast = thenAst,
-            end = listOf(Token.ElseIf, Token.Else, Token.EndIf)
+            end = listOf(QuickCodeToken.ElseIf, QuickCodeToken.Else, QuickCodeToken.EndIf)
         )
 
         val elseAst = when (thenEnd) {
-            Token.ElseIf -> AstBuilder().apply {
+            QuickCodeToken.ElseIf -> AstBuilder().apply {
                 parseIfStatement(this)
             }
 
-            Token.Else -> AstBuilder().apply {
+            QuickCodeToken.Else -> AstBuilder().apply {
                 parseUntil(
                     ast = this,
-                    end = listOf(Token.EndIf)
+                    end = listOf(QuickCodeToken.EndIf)
                 )
             }
 
@@ -92,8 +92,8 @@ class QuickCodeParser {
 
     private fun QCParserScope<QuickCodeAst>.parseUntil(
         ast: AstBuilder,
-        end: List<Token>
-    ): Token {
+        end: List<QuickCodeToken>
+    ): QuickCodeToken {
         while (true) {
             val token = consumeToken()
             requireNotNull(token) {
