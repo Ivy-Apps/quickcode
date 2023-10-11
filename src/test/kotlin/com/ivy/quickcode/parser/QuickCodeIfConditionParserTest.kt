@@ -1,8 +1,8 @@
 package com.ivy.quickcode.parser
 
-import com.ivy.quickcode.data.IfStatement.Condition
-import com.ivy.quickcode.data.QuickCodeToken
-import com.ivy.quickcode.data.QuickCodeToken.IfExpression
+import com.ivy.quickcode.lexer.model.QuickCodeToken
+import com.ivy.quickcode.lexer.model.QuickCodeToken.IfExpression
+import com.ivy.quickcode.parser.model.IfStatement.Condition
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 

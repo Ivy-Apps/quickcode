@@ -1,6 +1,10 @@
-package com.ivy.quickcode
+package com.ivy.quickcode.interpreter
 
-import com.ivy.quickcode.data.*
+import com.ivy.quickcode.interpreter.model.QCVariableValue
+import com.ivy.quickcode.parser.model.IfStatement
+import com.ivy.quickcode.parser.model.QuickCodeAst
+import com.ivy.quickcode.parser.model.RawText
+import com.ivy.quickcode.parser.model.Variable
 
 class QuickCodeInterpreter(
     private val variables: Map<String, QCVariableValue>,

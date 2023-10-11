@@ -1,34 +1,37 @@
 package com.ivy.quickcode.parser
 
-import com.ivy.quickcode.data.*
-import com.ivy.quickcode.data.IfStatement.Condition
+import arrow.core.Either
+import arrow.core.raise.Raise
+import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
+import com.ivy.quickcode.lexer.model.QuickCodeToken
+import com.ivy.quickcode.parser.model.IfStatement
+import com.ivy.quickcode.parser.model.IfStatement.Condition
+import com.ivy.quickcode.parser.model.QuickCodeAst
+import com.ivy.quickcode.parser.model.RawText
+import com.ivy.quickcode.parser.model.Variable
 
 class QuickCodeParser {
-    fun parse(tokens: List<QuickCodeToken>): ParseResult {
-        return try {
-            ParseResult.Success(parseInternal(tokens))
-        } catch (e: Exception) {
-            ParseResult.Failure(e.message ?: "unknown error")
-        }
+    fun parse(
+        tokens: List<QuickCodeToken>
+    ): Either<String, QuickCodeAst> = either {
+        val scope = QCParserScope<QuickCodeAst>(tokens, initialPosition = 0)
+        with(scope) { parseInternal() }
     }
 
-    private fun parseInternal(
-        tokens: List<QuickCodeToken>,
-    ): QuickCodeAst.Begin {
-        val astBuilder = AstBuilder()
-        val parserScope = QCParserScope<QuickCodeAst>(tokens, initialPosition = 0)
-
-        with(parserScope) {
+    context(Raise<String>, QCParserScope<QuickCodeAst>)
+    private fun parseInternal(): QuickCodeAst.Begin {
+        val ast = AstBuilder().apply {
             var currentToken = consumeToken()
             while (currentToken != null) {
-                parseToken(astBuilder, currentToken)
+                parseToken(this, currentToken)
                 currentToken = consumeToken()
             }
         }
-        return astBuilder.begin
+        return ast.begin
     }
 
-
+    context(Raise<String>)
     private fun QCParserScope<QuickCodeAst>.parseToken(
         astBuilder: AstBuilder,
         token: QuickCodeToken,
@@ -47,11 +50,12 @@ class QuickCodeParser {
             }
 
             else -> {
-                error("Unexpected token: $token, next token is ${consumeToken()}")
+                raise("Unexpected token: $token, next token is ${consumeToken()}")
             }
         }
     }
 
+    context(Raise<String>)
     private fun QCParserScope<QuickCodeAst>.parseIfStatement(
         ast: AstBuilder
     ) {
@@ -86,13 +90,14 @@ class QuickCodeParser {
         ast.addNode(ifStm)
     }
 
+    context(Raise<String>)
     private fun QCParserScope<QuickCodeAst>.parseUntil(
         ast: AstBuilder,
         end: List<QuickCodeToken>
     ): QuickCodeToken {
         while (true) {
             val token = consumeToken()
-            requireNotNull(token) {
+            ensureNotNull(token) {
                 "Uncompleted if branch. It must end with any ${end.joinToString(", ")}."
             }
             if (token in end) {
@@ -102,10 +107,11 @@ class QuickCodeParser {
         }
     }
 
+    context(Raise<String>)
     private fun QCParserScope<QuickCodeAst>.parseIfCondition(
     ): Condition {
         val parser = QuickCodeIfConditionParser(tokens)
-        val (condition, newPos) = requireNotNull(parser.parse(position)) {
+        val (condition, newPos) = ensureNotNull(parser.parse(position)) {
             """
                 Invalid if condition! At '${locationDescription()}'.
                 Check for errors in the variables like '{' instead of '{{'.
@@ -125,4 +131,3 @@ class QuickCodeParser {
         }
     }
 }
-

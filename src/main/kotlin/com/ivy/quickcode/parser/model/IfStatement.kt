@@ -1,20 +1,4 @@
-package com.ivy.quickcode.data
-
-sealed interface QuickCodeAst {
-    var next: QuickCodeAst?
-
-    data class Begin(override var next: QuickCodeAst? = null) : QuickCodeAst
-}
-
-data class RawText(
-    val text: String,
-    override var next: QuickCodeAst? = null
-) : QuickCodeAst
-
-data class Variable(
-    val name: String,
-    override var next: QuickCodeAst? = null
-) : QuickCodeAst
+package com.ivy.quickcode.parser.model
 
 data class IfStatement(
     val condition: Condition,

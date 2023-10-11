@@ -1,6 +1,6 @@
-package com.ivy.quickcode
+package com.ivy.quickcode.lexer
 
-import com.ivy.quickcode.data.QuickCodeToken
+import com.ivy.quickcode.lexer.model.QuickCodeToken
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 

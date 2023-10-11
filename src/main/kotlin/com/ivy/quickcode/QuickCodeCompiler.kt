@@ -1,8 +1,16 @@
 package com.ivy.quickcode
 
-import com.ivy.quickcode.data.*
-import com.ivy.quickcode.parser.ParseResult
+import arrow.core.Either
+import arrow.core.raise.either
+import com.ivy.quickcode.interpreter.QuickCodeInterpreter
+import com.ivy.quickcode.interpreter.model.QCVariable
+import com.ivy.quickcode.interpreter.model.QCVariableValue
+import com.ivy.quickcode.lexer.QuickCodeLexer
 import com.ivy.quickcode.parser.QuickCodeParser
+import com.ivy.quickcode.parser.model.IfStatement
+import com.ivy.quickcode.parser.model.QuickCodeAst
+import com.ivy.quickcode.parser.model.RawText
+import com.ivy.quickcode.parser.model.Variable
 
 class QuickCodeCompiler {
     private val lexer = QuickCodeLexer()
@@ -11,29 +19,18 @@ class QuickCodeCompiler {
     fun execute(
         codeTemplate: String,
         vars: Map<String, QCVariableValue>
-    ): String {
+    ): Either<String, String> = either {
         val tokens = lexer.tokenize(codeTemplate)
-        return when (val res = parser.parse(tokens)) {
-            is ParseResult.Failure -> codeTemplate
-            is ParseResult.Success -> {
-                val interpreter = QuickCodeInterpreter(vars)
-                interpreter.evaluate(res.ast)
-            }
-        }
+        val ast = parser.parse(tokens).bind()
+        val interpreter = QuickCodeInterpreter(vars)
+        interpreter.evaluate(ast)
     }
 
-    fun compile(codeTemplate: String): CompilationResult {
+    fun compile(codeTemplate: String): Either<String, CompilationOutput> = either {
         val tokens = lexer.tokenize(codeTemplate)
-        return when (val res = parser.parse(tokens)) {
-            is ParseResult.Failure -> CompilationResult.Invalid(res.errorMsg)
-            is ParseResult.Success -> {
-                CompilationResult.Valid(
-                    ast = res.ast,
-                    variables = res.ast.extractAllVars()
-                        .fixVariableConflicts()
-                )
-            }
-        }
+        val ast = parser.parse(tokens).bind()
+        val variables = ast.extractAllVars().fixVariableConflicts()
+        CompilationOutput(ast, variables)
     }
 
     private fun List<QCVariable>.fixVariableConflicts(): List<QCVariable> {
@@ -95,12 +92,8 @@ class QuickCodeCompiler {
         }
     }
 
-    sealed interface CompilationResult {
-        data class Valid(
-            val ast: QuickCodeAst,
-            val variables: List<QCVariable>
-        ) : CompilationResult
-
-        data class Invalid(val errMsg: String) : CompilationResult
-    }
+    data class CompilationOutput(
+        val ast: QuickCodeAst,
+        val variables: List<QCVariable>
+    )
 }
