@@ -36,6 +36,7 @@ testing = [
     "kotest-assertions",
     "kotest-property",
     "kotest-property-arrow",
+    "kotest-assertions-arrow",
     "kotest-datatest",
     "kotlin-coroutines-test"
 ]

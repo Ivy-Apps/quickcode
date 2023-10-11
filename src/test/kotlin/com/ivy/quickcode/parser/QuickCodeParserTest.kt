@@ -1,10 +1,12 @@
 package com.ivy.quickcode.parser
 
+import arrow.core.Either
 import com.ivy.quickcode.data.IfStatement
 import com.ivy.quickcode.data.QuickCodeAst
 import com.ivy.quickcode.data.RawText
 import com.ivy.quickcode.data.Variable
 import com.ivy.quickcode.lexer.QuickCodeToken
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
@@ -38,15 +40,16 @@ class QuickCodeParserTest : FreeSpec({
         next?.printAst(indent)
     }
 
-    infix fun ParseResult.shouldBe(expected: QuickCodeAst) {
+    infix fun Either<String, QuickCodeAst>.shouldBe(expected: QuickCodeAst) {
         println("Actual:")
-        (this as ParseResult.Success).ast.printAst()
+        val ast = shouldBeRight()
+        ast.printAst()
         println("-------")
         println()
         println("Expected:")
         expected.printAst()
         println("-------")
-        this.ast shouldBe expected
+        ast shouldBe expected
     }
 
     fun buildAst(vararg ast: QuickCodeAst): QuickCodeAst {

@@ -2,6 +2,7 @@ package com.ivy.quickcode
 
 import com.ivy.quickcode.data.QCVariable
 import com.ivy.quickcode.data.QCVariableValue
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
@@ -18,10 +19,11 @@ class QuickCodeCompilerTest : FreeSpec({
 
         // when
         println(compiler.compile(template))
-        val result = compiler.execute(template, vars)
+        val res = compiler.execute(template, vars)
 
         // then
-        result shouldBe loadFile("compiler/$folder/${case}_expected.txt")
+        val expected = loadFile("compiler/$folder/${case}_expected.txt")
+        res.shouldBeRight() shouldBe expected
     }
 
 
@@ -170,10 +172,10 @@ class QuickCodeCompilerTest : FreeSpec({
         """.trimIndent()
 
         // when
-        val result = compiler.compile(code)
+        val res = compiler.compile(code)
 
         // res
-        (result as QuickCodeCompiler.CompilationResult.Valid).variables shouldBe listOf(
+        res.shouldBeRight().variables shouldBe listOf(
             QCVariable.Bool("name")
         )
     }
