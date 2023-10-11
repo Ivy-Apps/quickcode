@@ -9,6 +9,12 @@ application {
     applicationName = "qc"
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-XXLanguage:+ContextReceivers"
+    }
+}
+
 group = "com.ivy"
 version = "1.0-SNAPSHOT"
 

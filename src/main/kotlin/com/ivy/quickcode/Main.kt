@@ -1,5 +1,7 @@
 package com.ivy.quickcode
 
+import arrow.core.Either
+import arrow.core.identity
 import com.ivy.quickcode.data.QCVariableValue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
@@ -29,15 +31,23 @@ fun main(args: Array<String>) {
     println("Input:")
     println(input)
 
+
     val compiler = QuickCodeCompiler()
     val result = compiler.execute(template, input)
     println("----------------")
-    produceOutputFile(
-        templatePath = args[0],
-        result = result,
-    )
+    if (result is Either.Right) {
+        produceOutputFile(
+            templatePath = args[0],
+            result = result.value,
+        )
+    }
     println("----------------")
-    println(result)
+    println(
+        result.fold(
+            ifLeft = { "Compilation error: $it" },
+            ifRight = ::identity,
+        )
+    )
 }
 
 fun readFileContent(relativePath: String): String {
