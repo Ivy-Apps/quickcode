@@ -1,7 +1,6 @@
 package com.ivy.quickcode
 
 import arrow.core.Either
-import arrow.core.identity
 import arrow.core.raise.either
 import com.ivy.quickcode.interpreter.model.QCVariableValue
 import kotlinx.serialization.json.Json
@@ -16,24 +15,24 @@ fun main(args: Array<String>) {
     either {
         val input = parseInput(args).bind()
         println("Input:")
-        println(input)
+        println(input.variables)
 
         val compiler = QuickCodeCompiler()
-        val result = compiler.execute(input.templateText, input.variables)
-        println("----------------")
-        if (result is Either.Right) {
-            produceOutputFile(
-                templatePath = args[0],
-                result = result.value,
-            )
-        }
-        println("----------------")
-        println(
-            result.fold(
-                ifLeft = { "Compilation error: $it" },
-                ifRight = ::identity,
-            )
-        )
+        compiler.execute(input.templateText, input.variables)
+            .onRight { outputText ->
+                println("----------------")
+                produceOutputFile(
+                    templatePath = args[0],
+                    result = outputText,
+                )
+                println("----------------")
+                println(outputText)
+            }
+            .onLeft {
+                println("----------------")
+                println("Compilation error: $it")
+                println("----------------")
+            }
     }.onLeft {
         println("Input error: $it")
     }
