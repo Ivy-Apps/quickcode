@@ -1,10 +1,12 @@
 plugins {
     application
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 application {
     mainClass = "com.ivy.quickcode.MainKt"
+    applicationName = "qc"
 }
 
 group = "com.ivy"
@@ -23,7 +25,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(11)
 }
 
 dependencies {
