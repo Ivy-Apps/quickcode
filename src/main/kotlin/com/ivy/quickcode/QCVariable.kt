@@ -1,4 +1,4 @@
-package com.ivy.quickcode.data
+package com.ivy.quickcode
 
 sealed interface QCVariable {
     val name: String

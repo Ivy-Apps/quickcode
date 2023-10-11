@@ -1,4 +1,4 @@
-package com.ivy.quickcode.data
+package com.ivy.quickcode.parser.model
 
 sealed interface QuickCodeAst {
     var next: QuickCodeAst?

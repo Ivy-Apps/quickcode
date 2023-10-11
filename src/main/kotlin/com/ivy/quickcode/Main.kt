@@ -2,7 +2,7 @@ package com.ivy.quickcode
 
 import arrow.core.Either
 import arrow.core.identity
-import com.ivy.quickcode.data.QCVariableValue
+import com.ivy.quickcode.interpreter.model.QCVariableValue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean

@@ -1,4 +1,4 @@
-package com.ivy.quickcode.lexer
+package com.ivy.quickcode.lexer.model
 
 sealed interface QuickCodeToken {
     data class RawText(val text: String) : QuickCodeToken
@@ -104,7 +104,3 @@ sealed interface QuickCodeToken {
     }
 }
 
-data class TokenSyntax(
-    val tag: String,
-    val endTag: String? = null,
-)

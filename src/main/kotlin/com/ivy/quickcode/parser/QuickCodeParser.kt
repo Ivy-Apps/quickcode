@@ -4,12 +4,12 @@ import arrow.core.Either
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
-import com.ivy.quickcode.data.IfStatement
-import com.ivy.quickcode.data.IfStatement.Condition
-import com.ivy.quickcode.data.QuickCodeAst
-import com.ivy.quickcode.data.RawText
-import com.ivy.quickcode.data.Variable
-import com.ivy.quickcode.lexer.QuickCodeToken
+import com.ivy.quickcode.lexer.model.QuickCodeToken
+import com.ivy.quickcode.parser.model.IfStatement
+import com.ivy.quickcode.parser.model.IfStatement.Condition
+import com.ivy.quickcode.parser.model.QuickCodeAst
+import com.ivy.quickcode.parser.model.RawText
+import com.ivy.quickcode.parser.model.Variable
 
 class QuickCodeParser {
     fun parse(

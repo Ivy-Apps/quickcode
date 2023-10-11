@@ -1,7 +1,7 @@
 package com.ivy.quickcode.parser
 
-import com.ivy.quickcode.data.IfStatement
-import com.ivy.quickcode.lexer.QuickCodeToken
+import com.ivy.quickcode.lexer.model.QuickCodeToken
+import com.ivy.quickcode.parser.model.IfStatement
 
 typealias IfCondParserScope = QCParserScope<IfStatement.Condition>
 

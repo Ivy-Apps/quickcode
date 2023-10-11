@@ -1,5 +1,8 @@
 package com.ivy.quickcode.lexer
 
+import com.ivy.quickcode.lexer.model.QuickCodeToken
+import com.ivy.quickcode.lexer.model.TokenSyntax
+
 /**
  * Transforms a text ([String]) into a list of [QuickCodeToken]
  * that can be processed by the parser.

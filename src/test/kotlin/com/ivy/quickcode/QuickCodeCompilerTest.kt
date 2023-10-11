@@ -1,7 +1,6 @@
 package com.ivy.quickcode
 
-import com.ivy.quickcode.data.QCVariable
-import com.ivy.quickcode.data.QCVariableValue
+import com.ivy.quickcode.interpreter.model.QCVariableValue
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe

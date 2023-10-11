@@ -2,9 +2,14 @@ package com.ivy.quickcode
 
 import arrow.core.Either
 import arrow.core.raise.either
-import com.ivy.quickcode.data.*
+import com.ivy.quickcode.interpreter.QuickCodeInterpreter
+import com.ivy.quickcode.interpreter.model.QCVariableValue
 import com.ivy.quickcode.lexer.QuickCodeLexer
 import com.ivy.quickcode.parser.QuickCodeParser
+import com.ivy.quickcode.parser.model.IfStatement
+import com.ivy.quickcode.parser.model.QuickCodeAst
+import com.ivy.quickcode.parser.model.RawText
+import com.ivy.quickcode.parser.model.Variable
 
 class QuickCodeCompiler {
     private val lexer = QuickCodeLexer()
@@ -26,11 +31,6 @@ class QuickCodeCompiler {
         val variables = ast.extractAllVars().fixVariableConflicts()
         CompilationOutput(ast, variables)
     }
-
-    data class CompilationOutput(
-        val ast: QuickCodeAst,
-        val variables: List<QCVariable>
-    )
 
     private fun List<QCVariable>.fixVariableConflicts(): List<QCVariable> {
         val namesSet = mutableSetOf<String>()
@@ -90,4 +90,9 @@ class QuickCodeCompiler {
             }
         }
     }
+
+    data class CompilationOutput(
+        val ast: QuickCodeAst,
+        val variables: List<QCVariable>
+    )
 }

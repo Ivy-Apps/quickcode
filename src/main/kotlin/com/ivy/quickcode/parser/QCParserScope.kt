@@ -1,6 +1,6 @@
 package com.ivy.quickcode.parser
 
-import com.ivy.quickcode.lexer.QuickCodeToken
+import com.ivy.quickcode.lexer.model.QuickCodeToken
 
 class QCParserScope<T>(
     val tokens: List<QuickCodeToken>,
@@ -68,5 +68,4 @@ class QCParserScope<T>(
     fun changePosition(position: Int) {
         this.position = position
     }
-
 }

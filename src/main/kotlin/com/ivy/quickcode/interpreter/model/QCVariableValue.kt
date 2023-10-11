@@ -1,4 +1,4 @@
-package com.ivy.quickcode.data
+package com.ivy.quickcode.interpreter.model
 
 sealed interface QCVariableValue {
     data class Str(val value: String) : QCVariableValue

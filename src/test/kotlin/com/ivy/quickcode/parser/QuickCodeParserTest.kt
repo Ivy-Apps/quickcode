@@ -1,11 +1,11 @@
 package com.ivy.quickcode.parser
 
 import arrow.core.Either
-import com.ivy.quickcode.data.IfStatement
-import com.ivy.quickcode.data.QuickCodeAst
-import com.ivy.quickcode.data.RawText
-import com.ivy.quickcode.data.Variable
-import com.ivy.quickcode.lexer.QuickCodeToken
+import com.ivy.quickcode.lexer.model.QuickCodeToken
+import com.ivy.quickcode.parser.model.IfStatement
+import com.ivy.quickcode.parser.model.QuickCodeAst
+import com.ivy.quickcode.parser.model.RawText
+import com.ivy.quickcode.parser.model.Variable
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
