@@ -42,7 +42,7 @@ class QuickCodeLexer {
     private fun LexerState.parseStep(
         rules: List<() -> Boolean>
     ) {
-        // Try all rules, if none succeed assume it's raw test
+        // Try all rules, if none succeeds assume then it's default
         for (rule in rules) {
             val succeed = rule.invoke()
             if (succeed) {
@@ -53,7 +53,7 @@ class QuickCodeLexer {
         }
 
         // default case: raw text
-        // no rules have succeed
+        // no rules have succeeded
         val nextSpecialCharIndex = listOf(
             Token.Variable.syntax,
             Token.If.syntax,
@@ -75,11 +75,9 @@ class QuickCodeLexer {
         }
         prevPosition = position
         position = nextSpecialCharIndex
+
         if (position == prevPosition) {
-            /*
-            Special case wasn't parsed successfully (probably not satisfied condition).
-            Consider this char as a RawText
-             */
+            // Cycle!!
             tokens.add(Token.RawText("${text[position]}"))
             position++
         }
@@ -220,12 +218,15 @@ class QuickCodeLexer {
      * @param text an immutable representation of the text being parsed
      * @param isInsideIfCondition mutable flag indicating whether we're
      * inside #if {{condition}} #then condition
+     * @param position the current position up to which the [text] is parsed
+     * @param prevPosition the previous [position], used to prevent cycles
+     * @param tokens mutable list containing all parsed tokens
      */
     private data class LexerState(
         val text: String,
         var isInsideIfCondition: Boolean,
-        var prevPosition: Int,
         var position: Int,
+        var prevPosition: Int,
         val tokens: MutableList<Token>
     )
 
@@ -292,7 +293,7 @@ class QuickCodeLexer {
     private fun String.dropUnnecessaryWhiteSpace(): String {
         var spacesToDrop = 0
         for (i in indices) {
-            if (get(i) == ' ') {
+            if (this[i] == ' ') {
                 spacesToDrop++
             } else {
                 break
