@@ -2,6 +2,7 @@ package com.ivy.quickcode
 
 import arrow.core.Either
 import arrow.core.identity
+import arrow.core.raise.either
 import com.ivy.quickcode.interpreter.model.QCVariableValue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
@@ -12,49 +13,60 @@ import java.nio.file.Paths
 import kotlin.io.path.name
 
 fun main(args: Array<String>) {
-    // TODO: Extract this as a class, handle errors cases and test it
-    if (args.size != 2) {
-        println("Invalid arguments!")
-        return
+    either {
+        val input = parseInput(args).bind()
+        println("Input:")
+        println(input)
+
+        val compiler = QuickCodeCompiler()
+        val result = compiler.execute(input.templateText, input.variables)
+        println("----------------")
+        if (result is Either.Right) {
+            produceOutputFile(
+                templatePath = args[0],
+                result = result.value,
+            )
+        }
+        println("----------------")
+        println(
+            result.fold(
+                ifLeft = { "Compilation error: $it" },
+                ifRight = ::identity,
+            )
+        )
+    }.onLeft {
+        println("Input error: $it")
     }
-    val template = readFileContent(args[0])
-    val inputJson = readFileContent(args[1])
+}
+
+private fun parseInput(
+    args: Array<String>
+): Either<String, Input> = either {
+    if (args.size != 2) {
+        raise("Invalid arguments! Pass exactly 2 arguments.")
+    }
+    val templateText = readFileContent(args[0]).bind()
+    val inputJson = readFileContent(args[1]).bind()
     val rawInput: Map<String, JsonPrimitive> = Json.decodeFromString(inputJson)
-    val input = rawInput.map { (key, value) ->
+    val variables = rawInput.map { (key, value) ->
         key to when {
             value.isString -> QCVariableValue.Str(value.content)
             value.booleanOrNull != null -> QCVariableValue.Bool(value.boolean)
             else -> error("Unsupported input type \"$key\"")
         }
     }.toMap()
-
-    println("Input:")
-    println(input)
-
-    val compiler = QuickCodeCompiler()
-    val result = compiler.execute(template, input)
-    println("----------------")
-    if (result is Either.Right) {
-        produceOutputFile(
-            templatePath = args[0],
-            result = result.value,
-        )
-    }
-    println("----------------")
-    println(
-        result.fold(
-            ifLeft = { "Compilation error: $it" },
-            ifRight = ::identity,
-        )
-    )
+    Input(templateText, variables)
 }
 
-fun readFileContent(relativePath: String): String {
+
+private fun readFileContent(
+    relativePath: String
+): Either<String, String> = Either.catch {
     val path = Paths.get(relativePath)
-    return Files.readString(path)
-}
+    Files.readString(path)
+}.mapLeft { it.toString() }
 
-fun produceOutputFile(templatePath: String, result: String) {
+private fun produceOutputFile(templatePath: String, result: String) {
     val path = Paths.get(templatePath)
     val fileName = path.fileName.name
     val outputFilename = fileName.dropLast(3)
@@ -64,3 +76,8 @@ fun produceOutputFile(templatePath: String, result: String) {
     )
     println("'$outputFilename' created.")
 }
+
+data class Input(
+    val templateText: String,
+    val variables: Map<String, QCVariableValue>
+)
