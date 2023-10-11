@@ -2,7 +2,7 @@ package com.ivy.quickcode.lexer
 
 class QuickCodeLexer {
     fun tokenize(text: String): List<Token> {
-        val scope = LexerScope(
+        val scope = LexerState(
             text = text,
             isInsideIfCondition = false,
             position = 0,
@@ -90,7 +90,7 @@ class QuickCodeLexer {
     }
 
 
-    private fun LexerScope.parserRules(): List<() -> Boolean> {
+    private fun LexerState.parserRules(): List<() -> Boolean> {
         return listOf(
             { variable() },
             { ifCond() },
@@ -107,7 +107,7 @@ class QuickCodeLexer {
         )
     }
 
-    private fun LexerScope.parse(
+    private fun LexerState.parse(
         rules: List<() -> Boolean>
     ) {
         for (rule in rules) {
@@ -148,14 +148,14 @@ class QuickCodeLexer {
         }
     }
 
-    private fun LexerScope.variable(): Boolean = parseToken(
+    private fun LexerState.variable(): Boolean = parseToken(
         condition = !isInsideIfCondition,
         syntax = Token.Variable.syntax,
     ) {
         Token.Variable(name = it.trim())
     }
 
-    private fun LexerScope.ifCond() = parseToken(
+    private fun LexerState.ifCond() = parseToken(
         condition = !isInsideIfCondition,
         syntax = Token.If.syntax,
     ) {
@@ -163,49 +163,49 @@ class QuickCodeLexer {
         Token.If
     }
 
-    private fun LexerScope.ifOpenBracket() = parseToken(
+    private fun LexerState.ifOpenBracket() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.OpenBracket.syntax,
     ) {
         Token.IfExpression.OpenBracket
     }
 
-    private fun LexerScope.ifCloseBracket() = parseToken(
+    private fun LexerState.ifCloseBracket() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.CloseBracket.syntax,
     ) {
         Token.IfExpression.CloseBracket
     }
 
-    private fun LexerScope.ifNot() = parseToken(
+    private fun LexerState.ifNot() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.Not.syntax,
     ) {
         Token.IfExpression.Not
     }
 
-    private fun LexerScope.ifAndCond() = parseToken(
+    private fun LexerState.ifAndCond() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.And.syntax,
     ) {
         Token.IfExpression.And
     }
 
-    private fun LexerScope.ifOrCond() = parseToken(
+    private fun LexerState.ifOrCond() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.Or.syntax,
     ) {
         Token.IfExpression.Or
     }
 
-    private fun LexerScope.ifBoolVar() = parseToken(
+    private fun LexerState.ifBoolVar() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.IfExpression.BoolVariable.syntax,
     ) {
         Token.IfExpression.BoolVariable(name = it.trim())
     }
 
-    private fun LexerScope.thenCond() = parseToken(
+    private fun LexerState.thenCond() = parseToken(
         condition = isInsideIfCondition,
         syntax = Token.Then.syntax,
     ) {
@@ -213,7 +213,7 @@ class QuickCodeLexer {
         Token.Then
     }
 
-    private fun LexerScope.elseIfCond() = parseToken(
+    private fun LexerState.elseIfCond() = parseToken(
         condition = !isInsideIfCondition,
         syntax = Token.ElseIf.syntax
     ) {
@@ -221,54 +221,64 @@ class QuickCodeLexer {
         Token.ElseIf
     }
 
-    private fun LexerScope.elseCond() = parseToken(
+    private fun LexerState.elseCond() = parseToken(
         condition = !isInsideIfCondition,
         syntax = Token.Else.syntax
     ) {
         Token.Else
     }
 
-    private fun LexerScope.endIfCond() = parseToken(
+    private fun LexerState.endIfCond() = parseToken(
         condition = !isInsideIfCondition,
         syntax = Token.EndIf.syntax,
     ) {
         Token.EndIf
     }
 
-    private fun LexerScope.parseToken(
+    private fun LexerState.parseToken(
         condition: Boolean,
         syntax: TokenSyntax,
-        onParseToken: LexerScope.(text: String) -> Token?,
+        createToken: LexerState.(content: String) -> Token,
     ): Boolean {
-        if (condition && text.startsWith(prefix = syntax.tag, startIndex = position)) {
-            if (syntax.endTag == null) {
-                onParseToken("")?.let(tokens::add)
-                position += syntax.tag.length
-                return true
-            } else {
-                val endIndex = text.indexOfOrNull(
-                    string = syntax.endTag,
-                    startIndex = position + syntax.tag.length
-                )
-                if (endIndex != null) {
-                    onParseToken(
-                        text.substring(
-                            startIndex = position + syntax.tag.length,
-                            endIndex = endIndex,
-                        )
-                    )?.let(tokens::add)
-                    position = endIndex + syntax.endTag.length
-                    return true
-                }
-            }
+        if (!condition) return false
+        if (!text.startsWith(prefix = syntax.tag, startIndex = position)) {
+            // start tag not present, do nothing
+            return false
         }
+
+        // Start tag present
+
+        if (syntax.endTag != null) {
+            // need to check if the end tag is there
+            val endTagIndex = text.indexOfOrNull(
+                string = syntax.endTag,
+                startIndex = position + syntax.tag.length
+            )
+            if (endTagIndex != null) {
+                // get the text between the start and end tags
+                // e.g. {{ content here }}
+                val content = text.substring(
+                    startIndex = position + syntax.tag.length,
+                    endIndex = endTagIndex,
+                )
+                tokens.add(createToken(content))
+                position = endTagIndex + syntax.endTag.length
+                return true
+            }
+        } else {
+            // no end tag needed, add the token
+            tokens.add(createToken(""))
+            position += syntax.tag.length
+            return true
+        }
+
         return false
     }
 
     private fun String.indexOfOrNull(string: String, startIndex: Int): Int? =
         indexOf(string, startIndex).takeIf { it != -1 }
 
-    private data class LexerScope(
+    private data class LexerState(
         val text: String,
         var isInsideIfCondition: Boolean,
         var prevPosition: Int,
