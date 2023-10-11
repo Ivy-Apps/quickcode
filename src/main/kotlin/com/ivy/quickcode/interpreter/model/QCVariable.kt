@@ -1,4 +1,4 @@
-package com.ivy.quickcode
+package com.ivy.quickcode.interpreter.model
 
 sealed interface QCVariable {
     val name: String

@@ -1,5 +1,6 @@
 package com.ivy.quickcode
 
+import com.ivy.quickcode.interpreter.model.QCVariable
 import com.ivy.quickcode.interpreter.model.QCVariableValue
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FreeSpec

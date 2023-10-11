@@ -3,6 +3,7 @@ package com.ivy.quickcode
 import arrow.core.Either
 import arrow.core.raise.either
 import com.ivy.quickcode.interpreter.QuickCodeInterpreter
+import com.ivy.quickcode.interpreter.model.QCVariable
 import com.ivy.quickcode.interpreter.model.QCVariableValue
 import com.ivy.quickcode.lexer.QuickCodeLexer
 import com.ivy.quickcode.parser.QuickCodeParser
