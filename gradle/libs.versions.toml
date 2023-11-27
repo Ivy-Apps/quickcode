@@ -1,15 +1,15 @@
 [versions]
-kotlin = "1.9.10"
+kotlin = "1.9.21"
 kotlin-coroutines = "1.7.3"
 arrow = "1.2.1"
-kotest = "5.7.2"
+kotest = "5.8.0"
 
 [libraries]
 
 # Kotlin
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.1" }
 
 # Arrow
 arrowkt-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
